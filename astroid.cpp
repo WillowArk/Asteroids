@@ -67,6 +67,7 @@ void Astroid::spawnAstroid()
 	points[(rPoints-1)].left = &points[(rPoints - 2)];
 	points[(rPoints-1)].right = &points[0];
 	collider = new PointCollider(&origin, points, rPoints);
+	std::cout << "Spawned Astroid" << std::endl;
 }
 
 //advances astroid by its speed*deltaTime; return false if it moves out of screen
@@ -79,9 +80,3 @@ bool Astroid::advance(float dt)
 	return true;
 }
 
-
-void Astroid::test()
-{
-	setPosition(600, 600);
-	collider->updatePoints(600, 600);
-}

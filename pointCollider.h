@@ -56,11 +56,8 @@ public:
 	Point* closestPoint(float x, float y);
 
 	bool collides(PointCollider obj);
-	bool intersects(Point a, Point b, Point c, Point d);
-	bool onSegment(Point p, Point q, Point r);
-	int orientation(Point p, Point q, Point r);
-
-
+	Point lineIntersection(Point a, Point b, Point c, Point d);
+	bool validPoint(Point p, Point a, Point b);
 
 };
 

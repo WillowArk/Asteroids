@@ -23,8 +23,6 @@ namespace sf
 		void spawnAstroid();
 		bool advance(float dt);
 
-		void test();
-
 	};
 }
 #endif

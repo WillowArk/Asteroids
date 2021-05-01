@@ -19,8 +19,8 @@ namespace sf {
 		bool vMove = false;
 
 		Point p1{ -3, -25 };
-		Point p2{ -30, 25 };
-		Point p3{ 25, 25 };
+		Point p2{ 25, 25 };
+		Point p3{ -30, 25 };
 		Point origin = Point(getOrigin().x, getOrigin().y);
 		Point *points[3] = { &p1, &p2, &p3 };
 

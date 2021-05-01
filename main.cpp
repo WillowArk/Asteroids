@@ -29,12 +29,8 @@ int main()
     sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "SFML works!");
 
 
-    sf::Astroid testAstroid;
 
 
-
-    testAstroid.test();
-    playerSprite.collider.printPoints();
     std::cout << playerSprite.collider.closestPoint(600, 600) << std::endl;
     while (window.isOpen())
     {
@@ -62,18 +58,20 @@ int main()
 
 
 
-       window.draw(testAstroid);
-
-       playerSprite.collider.showPoints(window, testAstroid.origin);
-       testAstroid.collider->showPoints(window, playerSprite.origin);
-
 
        //astroids
-       /*for (int i = 0; i + 1 < (runTime / 5) && i < 20; i++)
+       for (int i = 0; i + 1 < (runTime / 5) && i < 20; i++)
        {
            if (astroids[i] == nullptr)
            {
                astroids[i] = new sf::Astroid();
+           }
+           if (playerSprite.getGlobalBounds().intersects(astroids[i]->getGlobalBounds()))
+           {
+               playerSprite.collider.showPoints(window, astroids[i]->origin);
+               astroids[i]->collider->showPoints(window, playerSprite.origin);
+               if (playerSprite.collider.collides(*astroids[i]->collider))
+                   std::cout << "IT WORKS!!!" << std::endl;
            }
            window.draw(*astroids[i]);
            if (!(astroids[i]->advance(deltaTime)))
@@ -81,15 +79,8 @@ int main()
                delete astroids[i];
                astroids[i] = nullptr;
            }
-       }*/
-       if(playerSprite.collider.collides(*(testAstroid.collider)))
-           std::cout << "IT WORKS!" << std::endl;
-       if (runTime > 5)
-       {
-           runTime -= 5;
-           playerSprite.collider.printPoints();
-           testAstroid.collider->printPoints();
        }
+
        window.display();
     }
     return 0;

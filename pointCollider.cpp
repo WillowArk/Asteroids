@@ -14,6 +14,7 @@ void PointCollider::updatePoints(float objX, float objY)
 	origin->setY(objY);
 }
 
+//print location of points to console
 void PointCollider::printPoints()
 {
 	for (int i = 0; i < numP; i++)
@@ -22,6 +23,7 @@ void PointCollider::printPoints()
 	}
 }
 
+//Shows points to given screen highlighting point closest to given point
 void PointCollider::showPoints(sf::RenderWindow& window, Point orgn)
 {
 	for (int i = 0; i < numP; i++)
@@ -37,6 +39,7 @@ void PointCollider::showPoints(sf::RenderWindow& window, Point orgn)
 	}
 }
 
+//gets closest point in collider to given point
 Point* PointCollider::closestPoint(float x, float y)
 {
 	Point* closest = &pointList[0];
@@ -55,77 +58,86 @@ Point* PointCollider::closestPoint(float x, float y)
 	return closest;
 }
 
+//returns true if this object collides with given object
 bool PointCollider::collides(PointCollider obj)
 {
-	Point itsClosest = *(obj.closestPoint(origin->currX, origin->currY));
 	Point myClosest = *closestPoint(obj.getOrigin().currX, obj.getOrigin().currY);
+	Point myLeft = *myClosest.left;
+	Point myRight = *myClosest.right;
+	Point itsClosest = *(obj.closestPoint(origin->currX, origin->currY));
+	Point itsLeft = *itsClosest.left;
+	Point itsRight = *itsClosest.right;
 
-	std::cout << myClosest.currX << ", " << myClosest.currY << std::endl;
+	Point junction = lineIntersection(myClosest, myLeft, itsClosest, itsLeft);
+	if (validPoint(junction, myClosest, myLeft) && validPoint(junction, itsClosest, itsLeft))
+		return true;
+	junction = lineIntersection(myClosest, myRight, itsClosest, itsLeft);
+	if (validPoint(junction, myClosest, myRight) && validPoint(junction, itsClosest, itsLeft))
+		return true;
+	junction = lineIntersection(myClosest, myLeft, itsClosest, itsRight);
+	if (validPoint(junction, myClosest, myLeft) && validPoint(junction, itsClosest, itsRight))
+		return true;
+	junction = lineIntersection(myClosest, myRight, itsClosest, itsRight);
+	if (validPoint(junction, myClosest, myRight) && validPoint(junction, itsClosest, itsRight))
+		return true;
+	return false;
+}
+
+//helper method for collider; checks if two given lines intersect
+Point PointCollider::lineIntersection(Point a, Point b, Point c, Point d)
+{
+	//get mx+b
+	float slope1 = (b.currY - a.currY) / (b.currX - a.currX);
+	float b1 = a.currY - slope1 * a.currX;
+	float slope2 = (d.currY - c.currY) / (d.currX - c.currX);
+	float b2 = c.currY - slope2 * c.currX;
 	
-	if (intersects(myClosest, *myClosest.left, itsClosest, *itsClosest.left))
-		return true;
-	if (intersects(myClosest, *myClosest.left, itsClosest, *itsClosest.right))
-		return true;
-	if (intersects(myClosest, *myClosest.right, itsClosest, *itsClosest.left))
-		return true;
-	if (intersects(myClosest, *myClosest.right, itsClosest, *itsClosest.right))
+
+	if (slope1 == slope2)
+	{
+		//a and c will always be the closest points
+		float x = ((a.currX - d.currX) / 2) + d.currX;
+		float y = ((a.currY - d.currY) / 2) + d.currY;
+		return Point{ x, y };
+	}
+	else
+	{
+		float x = (b2 - b1) / (slope1 - slope2);
+		float y = slope1 * x + b1;
+		return Point{x, y};
+	}
+}
+//helper method to check if given point of intersection is in between two points
+bool PointCollider::validPoint(Point p, Point a, Point b)
+{
+	float minX;
+	float maxX;
+	float minY;
+	float maxY;
+	if (a.currX < b.currX)
+	{
+		minX = a.currX;
+		maxX = b.currX;
+	}
+	else
+	{
+		minX = b.currX;
+		maxX = a.currX;
+	}
+
+	if (a.currY < b.currY)
+	{
+		minY = a.currY;
+		maxY = b.currY;
+	}
+	else
+	{
+		minY = b.currY;
+		maxY = a.currY;
+	}
+
+	if (p.currX >= minX && p.currX <= maxX && p.currY >= minY && p.currY <= maxY)
 		return true;
 
 	return false;
-}
-
-//helper function for collides method
-bool PointCollider::intersects(Point p1, Point q1, Point p2, Point q2)
-{
-	int o1 = orientation(p1, q1, p2);
-	int o2 = orientation(p1, q1, q2);
-	int o3 = orientation(p2, q2, p1);
-	int o4 = orientation(p2, q2, q1);
-
-	// General case
-	if (o1 != o2 && o3 != o4)
-		return true;
-
-	// Special Cases
-	// p1, q1 and p2 are colinear and p2 lies on segment p1q1
-	if (o1 == 0 && onSegment(p1, p2, q1)) return true;
-
-	// p1, q1 and q2 are colinear and q2 lies on segment p1q1
-	if (o2 == 0 && onSegment(p1, q2, q1)) return true;
-
-	// p2, q2 and p1 are colinear and p1 lies on segment p2q2
-	if (o3 == 0 && onSegment(p2, p1, q2)) return true;
-
-	// p2, q2 and q1 are colinear and q1 lies on segment p2q2
-	if (o4 == 0 && onSegment(p2, q1, q2)) return true;
-
-	return false;
-}
-
-bool PointCollider::onSegment(Point p, Point q, Point r)
-{
-	float max1 = (p.currX > r.currX) ? p.currX : r.currX;
-	float max2 = (p.currY > r.currY) ? p.currY : r.currY;
-	float min1 = (p.currX < r.currX) ? p.currX : r.currX;
-	float min2 = (p.currY < r.currY) ? p.currY : r.currY;
-	if (q.currX <= max1 && q.currX >= min1 && q.currY <= max2 && q.currY >= min2)
-		return true;
-
-	return false;
-}
-
-// To find orientation of ordered triplet (p, q, r).
-// The function returns following values
-// 0 --> p, q and r are colinear
-// 1 --> Clockwise
-// 2 --> Counterclockwise
-int PointCollider::orientation(Point p, Point q, Point r)
-{
-
-	int val = (q.currY - p.currY) * (r.currX - q.currX) -
-		(q.currX - p.currY) * (r.currX - q.currY);
-
-	if (val == 0) return 0;  // colinear
-
-	return (val > 0) ? 1 : 2; // clock or counterclock wise
 }
