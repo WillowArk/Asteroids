@@ -3,13 +3,14 @@
 
 #include <SFML/Graphics.hpp>
 #include <iostream>
-class Point
+struct Point
 {
 
 public:
 	float baseX, baseY;
 	float currX, currY;
-
+	float rotation; //angle from origin in radians
+	float magnitude;
 	Point* left = nullptr;
 	Point* right = nullptr;
 
@@ -20,6 +21,8 @@ public:
 		currX = x;
 		baseY = y;
 		currY = y;
+		magnitude = sqrt(pow(baseX, 2) + pow(baseY, 2));
+		rotation = (atan2f(baseY, baseX));
 	}
 
 
@@ -35,21 +38,14 @@ private:
 	int numP;
 public:
 
-	PointCollider(Point *org, Point* arr, int n)
-	{
-		origin = org;
-		pointList = arr;
-		numP = n;
-	}
-	PointCollider(Point *org, Point **arr, int n)
-	{
-		origin = org;
-		pointList = *arr;
-		numP = n;
-	}
+	PointCollider(Point* org, Point* arr, int n);
+	PointCollider(Point* org, Point** arr, int n);
 
 	void updatePoints(float objX, float objY);
+	void rotatePoints(float deg);
+
 	void printPoints();
+	void showPoints(sf::RenderWindow& window);
 	void showPoints(sf::RenderWindow& window, Point orgn);
 
 	Point getOrigin() { return *origin; }

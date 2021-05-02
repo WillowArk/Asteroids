@@ -9,37 +9,25 @@ namespace sf {
 	class Player : public sf::Sprite
 	{
 	private:
-		float speed = 100;
+		float speed = 200;
 		float rotationSpeed = 100;
 	public:
-		float xLocation;
-		float yLocation;
-		float a = 10;
-		float b = 5;
-		bool vMove = false;
+		bool vMove = true;
 
-		Point p1{ -3, -25 };
+		Texture playerImage{};
+		Point p1{ 0, -25 };
 		Point p2{ 25, 25 };
-		Point p3{ -30, 25 };
+		Point p3{ -25, 25 };
 		Point origin = Point(getOrigin().x, getOrigin().y);
 		Point *points[3] = { &p1, &p2, &p3 };
 
 		PointCollider collider = PointCollider(&origin, points, 3);
 
 
-		Player() : Sprite() { //Does not work
-			Texture ship;
-			if (!ship.loadFromFile("ship.png", sf::IntRect(0, 0, 50, 50))) {
-				std::cout << "error";
-			}
-			setTexture(ship);
-			defaultPlayer();
-		}
-		Player(Texture& t) : Sprite(t) {
-			defaultPlayer();
-		}
+		Player();
+		Player(Texture t);
 		void update();
-		void defaultPlayer();
+		void createPlayer();
 		void normalMove(float dt);
 		void vehicleMove(float dt);
 

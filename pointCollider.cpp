@@ -2,6 +2,24 @@
 #include <stdlib.h>
 #include <iostream>
 
+
+//constructors
+PointCollider::PointCollider(Point* org, Point* arr, int n)
+{
+	origin = org;
+	pointList = arr;
+	numP = n;
+
+}
+
+PointCollider::PointCollider(Point* org, Point** arr, int n)
+{
+	origin = org;
+	pointList = *arr;
+	numP = n;
+}
+
+
 //Updates points based on origin given
 void PointCollider::updatePoints(float objX, float objY)
 {
@@ -10,9 +28,25 @@ void PointCollider::updatePoints(float objX, float objY)
 		pointList[i].setX(objX);
 		pointList[i].setY(objY);
 	}
+
 	origin->setX(objX);
 	origin->setY(objY);
 }
+
+
+//rotates points around origin by given degrees * deltaTime;
+void PointCollider::rotatePoints(float deg)
+{
+	float rad = deg * .0174532925199;
+	float getRad;
+	for (int i = 0; i < numP; i++)
+	{
+		getRad = pointList[i].rotation += rad;
+		pointList[i].baseX = cos(getRad) * pointList[i].magnitude;
+		pointList[i].baseY = sin(getRad) * pointList[i].magnitude;
+	}
+}
+
 
 //print location of points to console
 void PointCollider::printPoints()
@@ -22,6 +56,7 @@ void PointCollider::printPoints()
 		std::cout << "Point " << i << ": " << &pointList[i] << " : {" << pointList[i].currX << ", " << pointList[i].currY << "}" << std::endl;
 	}
 }
+
 
 //Shows points to given screen highlighting point closest to given point
 void PointCollider::showPoints(sf::RenderWindow& window, Point orgn)
@@ -39,6 +74,17 @@ void PointCollider::showPoints(sf::RenderWindow& window, Point orgn)
 	}
 }
 
+
+void PointCollider::showPoints(sf::RenderWindow& window)
+{
+	for (int i = 0; i < numP; i++)
+	{
+		sf::CircleShape circle(5, 8);
+		circle.setOrigin(2.5, 2.5);
+		circle.setPosition(pointList[i].currX, pointList[i].currY);
+		window.draw(circle);
+	}
+}
 //gets closest point in collider to given point
 Point* PointCollider::closestPoint(float x, float y)
 {

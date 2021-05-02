@@ -2,6 +2,21 @@
 
 using namespace sf;
 
+
+Player::Player()
+{
+	if (!playerImage.loadFromFile("ship.png", sf::IntRect(0, 0, 50, 50))) {
+		std::cout << "Error: Failed to load playerImage";
+	}
+	createPlayer();
+}
+
+Player::Player(Texture t)
+{
+	playerImage = t;
+	createPlayer();
+}
+
 void Player::update()
 {
 	if (Keyboard::isKeyPressed)
@@ -10,8 +25,9 @@ void Player::update()
 	}
 }
 
-void Player::defaultPlayer()
+void Player::createPlayer()
 {
+	setTexture(playerImage);
 	setOrigin(getGlobalBounds().width / 2, getGlobalBounds().height /2);
 	p1.left = &p2;
 	p1.right = &p3;
@@ -54,6 +70,7 @@ void Player::vehicleMove(float dt)
 	if (Keyboard::isKeyPressed(Keyboard::A))
 	{
 		rotate(-rotationSpeed * dt);
+		collider.rotatePoints(-rotationSpeed * dt);
 	}
 	if (Keyboard::isKeyPressed(Keyboard::S))
 	{
@@ -62,5 +79,7 @@ void Player::vehicleMove(float dt)
 	if (Keyboard::isKeyPressed(Keyboard::D))
 	{
 		rotate(rotationSpeed*dt);
+		collider.rotatePoints(rotationSpeed * dt);
 	}
+	collider.updatePoints(getPosition().x, getPosition().y);
 }
