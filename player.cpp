@@ -29,6 +29,7 @@ void Player::createPlayer()
 {
 	setTexture(playerImage);
 	setOrigin(getGlobalBounds().width / 2, getGlobalBounds().height /2);
+	setMyScale(.75, .75);
 	p1.left = &p2;
 	p1.right = &p3;
 	p2.left = &p3;
@@ -82,4 +83,22 @@ void Player::vehicleMove(float dt)
 		collider.rotatePoints(rotationSpeed * dt);
 	}
 	collider.updatePoints(getPosition().x, getPosition().y);
+}
+
+//sets scale of image and points
+void Player::setMyScale(float sX, float sY)
+{
+	setScale(sX, sY);
+	p1.baseX = p1.baseX * sX;
+	p1.baseY = p1.baseY * sY; 
+}
+
+//creates a new bullet from the player
+Bullet Player::shoot()
+{	
+	bullets.push_back(new Bullet());
+	bullets.back()->setPosition(getPosition());
+	bullets.back()->setRotation(getRotation());
+	std::cout << "Shoot: " << &(bullets.back()->origin) << std::endl;
+	return *bullets.back();
 }

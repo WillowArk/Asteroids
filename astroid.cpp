@@ -23,28 +23,28 @@ void Astroid::spawnAstroid()
 	if (xpos <= 400) //topScreen
 	{
 		setPosition(xpos,0);
-		float ratio = speed / sqrtf(pow((800 - xpos),2) + 202500);
+		float ratio = speed / sqrtf((800 - xpos) * (800 - xpos) + 202500);
 		xSpeed = (800 - xpos) * ratio;
 		ySpeed = 450 * ratio;
 	}
 	else if (xpos <= 800) // left
 	{
 		setPosition(0, ypos);
-		float ratio = speed / sqrtf(pow((450 - ypos), 2) + 640000);
+		float ratio = speed / sqrtf((450 - ypos) * (450 - ypos) + 640000);
 		xSpeed = 800 * ratio;
 		ySpeed = (450 - ypos) * ratio;
 	}
 	else if (xpos <= 1200) //bottom
 	{
 		setPosition(xpos, 900);
-		float ratio = speed / sqrtf(pow((800 - xpos), 2) + 202500);
+		float ratio = speed / sqrtf((800 - xpos) * (800 - xpos) + 202500);
 		xSpeed = (800 - xpos) * ratio;
 		ySpeed = -450 * ratio;
 	}
 	else //right
 	{
 		setPosition(1600, ypos);
-		float ratio = speed / sqrtf(pow((450 - ypos), 2) + 640000);
+		float ratio = speed / sqrtf((450 - ypos) * (450 - ypos) + 640000);
 		xSpeed = -800 * ratio;
 		ySpeed = (450 - ypos) * ratio;
 	}

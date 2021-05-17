@@ -51,6 +51,9 @@ public:
 	Point getOrigin() { return *origin; }
 	Point* closestPoint(float x, float y);
 
+	bool withinRadius(float r, PointCollider obj);
+	bool intersectsRadius(Point p1, Point p2, Point org, float r);
+
 	bool collides(PointCollider obj);
 	Point lineIntersection(Point a, Point b, Point c, Point d);
 	bool validPoint(Point p, Point a, Point b);

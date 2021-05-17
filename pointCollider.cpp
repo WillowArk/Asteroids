@@ -20,7 +20,7 @@ PointCollider::PointCollider(Point* org, Point** arr, int n)
 }
 
 
-//Updates points based on origin given
+//Updates points, sending origin to given coordinates where points iwthin pattern will follow
 void PointCollider::updatePoints(float objX, float objY)
 {
 	for (int i = 0; i < numP; i++)
@@ -86,13 +86,14 @@ void PointCollider::showPoints(sf::RenderWindow& window)
 	}
 }
 //gets closest point in collider to given point
+//NOTE: May convert pow to powf if points are very close to one another
 Point* PointCollider::closestPoint(float x, float y)
 {
 	Point* closest = &pointList[0];
-	float a = pow((x - closest->currX), 2) + pow((y - closest->currY), 2);
+	float a = (x - closest->currX) * (x - closest->currX) + (y - closest->currY) * (y - closest->currY);
 	for (int i = 1; i < numP; i++)
 	{
-		float b = pow((x - pointList[i].currX), 2) + pow((y - pointList[i].currY), 2);
+		float b = (x - pointList[i].currX) * (x - pointList[i].currX) + (y - pointList[i].currY) * (y - pointList[i].currY);
 		a = (a < 0) ? a * -1 : a;
 		b = (b < 0) ? b * -1 : b;
 		if (b < a)
@@ -102,6 +103,54 @@ Point* PointCollider::closestPoint(float x, float y)
 		}
 	}
 	return closest;
+}
+
+//returns true if passed collider is within radius of given point
+bool PointCollider::withinRadius(float r, PointCollider obj)
+{
+	//if obj has only one point with a radius, check its radius. Otherwise, check its closest point
+	if (numP > 1)
+		return false;
+
+	Point* itsClosest = obj.closestPoint(origin->currX, origin->currY);
+	if (intersectsRadius(*itsClosest, *(itsClosest->left), *origin, r))
+	{
+		return true;
+	}
+	if (intersectsRadius(*itsClosest, *(itsClosest->right), *origin, r))
+	{
+		return true;
+	}
+
+	return false;
+}
+bool PointCollider::intersectsRadius(Point p1, Point p2, Point org, float r)
+{
+	//Line projection
+	
+	float vec1X = (p1.currX - org.currX);
+	float vec1Y = (p1.currY - org.currY);
+	float vec2X = (p2.currX - p1.currX);
+	float vec2Y = (p2.currY - p1.currY);
+
+	//c = proportion
+	float c = std::fabsf((vec1X * vec2X + vec1Y * vec2Y) / (vec2X * vec2X + vec2Y * vec2Y));
+
+	//vector2 multiplied by the proportion to get new coordinates;
+	float dist = sqrtf((org.currX - (p1.currX + vec2X * c)) * (org.currX - (p1.currX + vec2X * c)) + (org.currY - (p1.currY + vec2Y * c)) * (org.currY - (p1.currY + vec2Y * c)));
+	/*float aX = std::abs(p1.currX - org.currX);
+	float aY = std::abs (p1.currY - org.currY);
+	float bX = std::abs(p1.currX - p2.currX);
+	float bY = std::abs(p1.currY - p2.currY);
+	float aMag = sqrtf(powf(aX, 2) + powf(aY, 2));
+	float div = aMag * sqrtf(powf(bX, 2) + powf(bY, 2));
+	float dist = sinf(acosf((aX * bX + aY * bY) / div)) * aMag;
+	*/
+	//std::cout << dist << std::endl;
+	if (dist <= r)
+		return true;
+
+	return false;
 }
 
 //returns true if this object collides with given object

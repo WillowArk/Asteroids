@@ -4,6 +4,8 @@
 #include "player.h"
 #include "astroid.h"
 #include "pointCollider.h"
+#include "bullet.h";
+#include "gameMenu.h"
 
 
 const int screenWidth = 1600;
@@ -14,35 +16,30 @@ float speed = 100;
 sf::Clock deltaClock;
 float deltaTime = 0;
 float runTime = 0;
-
+bool test = true;
 int main()
 {
 
-    sf::Texture ship;
-    if (!ship.loadFromFile("ship.png", sf::IntRect(0, 0, 50, 50))) {
-        std::cout << "error";
-    }
-    ship.setRepeated(false);
-    ship.setSmooth(true);
-    sf::Player playerSprite(ship);
+    sf::Player playerSprite;
     playerSprite.setPosition(screenWidth / 2, screenHeight / 2);
     sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "SFML works!");
 
 
-
-
-    std::cout << playerSprite.collider.closestPoint(600, 600) << std::endl;
+    GameMenu menu = GameMenu(window);
+    bool playerDied = false;
     while (window.isOpen())
     {
-        window.clear(sf::Color::Black);
-        deltaTime = deltaClock.restart().asSeconds();
-        runTime += deltaTime;
         sf::Event event;
         while (window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
                 window.close();
         }
+
+        
+        window.clear(sf::Color::Black);
+        deltaTime = deltaClock.restart().asSeconds();
+        runTime += deltaTime;
 
        if (sf::Keyboard::isKeyPressed) {
            if (playerSprite.vMove)
@@ -53,10 +50,16 @@ int main()
            {
                playerSprite.normalMove(deltaTime);
            }
+
+           if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+           {
+               if (playerSprite.coolDown + 1 < runTime)
+               {
+                   playerSprite.coolDown = runTime;
+                   playerSprite.shoot();
+               }
+           }
        }
-       window.draw(playerSprite);
-
-
 
 
        //astroids
@@ -66,21 +69,48 @@ int main()
            {
                astroids[i] = new sf::Astroid();
            }
+           //playerCollision
            if (playerSprite.getGlobalBounds().intersects(astroids[i]->getGlobalBounds()))
            {
                playerSprite.collider.showPoints(window, astroids[i]->origin);
                astroids[i]->collider->showPoints(window, playerSprite.origin);
                if (playerSprite.collider.collides(*astroids[i]->collider))
-                   std::cout << "IT WORKS!!!" << std::endl;
+               {
+                   playerDied = true;
+               }
            }
            window.draw(*astroids[i]);
-           if (!(astroids[i]->advance(deltaTime)))
+           //bullets
+           Bullet* remove = nullptr;
+           for (Bullet* b : playerSprite.bullets)
            {
-               delete astroids[i];
-               astroids[i] = nullptr;
+               (*b).advance(deltaTime);
+
+               if (b->collider.withinRadius(5, *astroids[i]->collider))
+               {
+                   remove = b;
+                   delete b;
+                   delete astroids[i];
+                   astroids[i] = nullptr;
+               }
+               else
+                window.draw(*b);
+           }
+           playerSprite.bullets.remove(remove);
+           //returns true if astroid moves outside screen
+           if (astroids[i] != nullptr)
+           {
+               if (!(astroids[i]->advance(deltaTime)))
+               {
+                   delete astroids[i];
+                   astroids[i] = nullptr;
+               }
            }
        }
-
+       if (playerDied)
+           break;
+       playerSprite.collider.showPoints(window);
+       window.draw(playerSprite);
        window.display();
     }
     return 0;

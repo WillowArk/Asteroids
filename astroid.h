@@ -2,7 +2,7 @@
 #define ASTROID_H_
 
 #include <SFML/Graphics.hpp>
-#include "pointCollider.h";
+#include "pointCollider.h"
 
 namespace sf
 {
